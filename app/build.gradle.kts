@@ -1,6 +1,12 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt)
+    kotlin("plugin.serialization").version("1.9.0")
+
 }
 
 android {
@@ -19,6 +25,16 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+        //define apiKey from local.properties and get by BuildConfig.API_KEY
+        val properties = Properties()
+        properties.load(
+            project.rootProject.file("local.properties").inputStream()
+        )
+        buildConfigField(
+            "String",
+            "KEY",
+            properties.getProperty("KEY")
+        )
     }
 
     buildTypes {
@@ -39,6 +55,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
@@ -60,6 +77,29 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.lifecycle.runtimeCompose)
+
+    // hilt
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+
+    // ktor
+    implementation(libs.ktor.client.android)
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.logging)
+    implementation(libs.ktor.client.negotiation)
+    implementation(libs.ktor.client.serialization.json)
+    implementation(libs.kotlinx.serialization)
+    implementation(libs.ktor.client.cio)
+
+    // navigation
+    implementation(libs.androidx.hilt.navigation.compose)
+
+    // haze
+    implementation(libs.haze.haze)
+    implementation(libs.haze.materials)
+
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -67,4 +107,8 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    testImplementation(libs.truth.test)
+    androidTestImplementation(libs.truth.test)
+    testImplementation(libs.ktor.server.test)
+    testImplementation(libs.kotlin.test.junit)
 }
