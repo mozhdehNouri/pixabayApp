@@ -5,7 +5,7 @@ import com.example.pixabayapp.core.ApiResult
 import com.example.pixabayapp.core.Dispatcher
 import com.example.pixabayapp.core.PixabayDispatcher
 import com.example.pixabayapp.core.apiCallAndCheckResult
-import com.example.pixabayapp.core.injection.Utils.BASE_URL
+import com.example.pixabayapp.core.Utils.BASE_URL
 import com.example.pixabayapp.features.picture.data.dto.PictureNetworkResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get

@@ -2,12 +2,12 @@ package com.example.pixabayapp.features.video.ui.data
 
 
 data class VideoUiResponse(
-    val hits: List<HitUiResponse>,
+    val hits: List<HitVideoUiResponse>,
     val total: Int,
     val totalHits: Int
 )
 
-data class HitUiResponse(
+data class HitVideoUiResponse(
     val comments: Int,
     val downloads: Int,
     val duration: Int,

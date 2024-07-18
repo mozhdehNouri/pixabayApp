@@ -1,6 +1,5 @@
 pluginManagement {
     repositories {
-        repositories {
             maven {
                 url =
                     uri("https://nexus.samentic.com/repository/samentic-android")
@@ -14,7 +13,7 @@ pluginManagement {
                 gradlePluginPortal()
             }
         }
-    }
+
 
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)

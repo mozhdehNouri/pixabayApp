@@ -4,24 +4,24 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Scaffold
-import androidx.compose.ui.Modifier
-import com.example.pixabayapp.features.picture.ui.PhotoScreen
-import com.example.pixabayapp.ui.theme.PixabayAppTheme
+import com.example.pixabayapp.core.networkconnection.NetworkMonitor
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    @Inject
+    lateinit var networkMonitor: NetworkMonitor
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        super.onCreate(savedInstanceState)
         setContent {
-            PixabayAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    PhotoScreen()
-                }
-            }
+            val appState = rememberPixabayAppState(networkMonitor = networkMonitor)
+            PixabayApp(
+                appState = appState,
+                exitApp = {}
+            )
         }
     }
 }

@@ -1,7 +1,7 @@
 package com.example.pixabayapp.core.injection
 
 import android.util.Log
-import com.example.pixabayapp.core.injection.Utils.SERVER_LOG
+import com.example.pixabayapp.core.Utils.SERVER_LOG
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

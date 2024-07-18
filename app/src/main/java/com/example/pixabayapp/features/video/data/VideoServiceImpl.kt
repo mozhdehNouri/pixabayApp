@@ -5,7 +5,7 @@ import com.example.pixabayapp.core.ApiResult
 import com.example.pixabayapp.core.Dispatcher
 import com.example.pixabayapp.core.PixabayDispatcher
 import com.example.pixabayapp.core.apiCallAndCheckResult
-import com.example.pixabayapp.core.injection.Utils.VIDEO_BASE_URL
+import com.example.pixabayapp.core.Utils.VIDEO_BASE_URL
 import com.example.pixabayapp.features.video.data.dto.VideoNetworkResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
