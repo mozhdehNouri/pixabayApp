@@ -1,3 +1,4 @@
+import org.gradle.kotlin.dsl.libs
 import java.util.Properties
 
 plugins {
@@ -78,10 +79,14 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.lifecycle.runtimeCompose)
-
+    implementation(libs.androidx.compose.material3.adaptive.navigationSuite)
     // hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
+
+    // add coil
+    implementation(libs.coil.kt.compose)
+    implementation(libs.coil.kt.compose.video)
 
     // ktor
     implementation(libs.ktor.client.android)

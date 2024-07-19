@@ -1,6 +1,6 @@
 package com.example.pixabayapp.features.video.data.dto
 
-import com.example.pixabayapp.features.video.ui.data.HitUiResponse
+import com.example.pixabayapp.features.video.ui.data.HitVideoUiResponse
 import com.example.pixabayapp.features.video.ui.data.LargeUiResponse
 import com.example.pixabayapp.features.video.ui.data.MediumUiResponse
 import com.example.pixabayapp.features.video.ui.data.SmallUiResponse
@@ -12,7 +12,7 @@ import com.example.pixabayapp.features.video.ui.data.VideosUiResponse
 fun VideoNetworkResponse.toUiModel() =
     VideoUiResponse(hits.map { it.toUiModel() }, total, totalHits)
 
-private fun HitNetworkResponse.toUiModel() = HitUiResponse(
+private fun HitNetworkResponse.toUiModel() = HitVideoUiResponse(
     comments,
     downloads,
     duration,
