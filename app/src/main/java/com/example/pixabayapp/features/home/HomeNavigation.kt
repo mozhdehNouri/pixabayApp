@@ -9,7 +9,6 @@ fun NavGraphBuilder.homeScreen(
     navigateToVideo: () -> Unit
 ) {
     composable(PixabayRoute.HOME) {
-        HomeScreen()
+        HomeScreen(navigateToPhoto = navigateToPhoto)
     }
-
 }

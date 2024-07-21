@@ -2,16 +2,21 @@ package com.example.pixabayapp.features.home
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -23,6 +28,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -36,7 +43,10 @@ import coil.request.ImageRequest
 import kotlin.random.Random
 
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier) {
+fun HomeScreen(
+    modifier: Modifier = Modifier,
+    navigateToPhoto: () -> Unit
+) {
     val viewModel: HomeViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     when (uiState) {
@@ -45,21 +55,22 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                 CircularProgressIndicator(modifier = modifier.fillMaxSize())
             }
         }
-
         is HomeUiState.Error -> {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(text = (uiState as HomeUiState.Error).message.toString())
             }
         }
         is HomeUiState.Success -> {
-            HomeBody(uiState as HomeUiState.Success)
+            HomeBody(uiState as HomeUiState.Success, navigateToPhoto)
         }
     }
 }
 
 @Composable
 fun HomeBody(
-    uiState: HomeUiState.Success, modifier: Modifier = Modifier
+    uiState: HomeUiState.Success,
+    navigateToPhoto: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Column(
         modifier
@@ -67,10 +78,27 @@ fun HomeBody(
             .padding(horizontal = 8.dp, vertical = 12.dp)
             .background(MaterialTheme.colorScheme.background)
     ) {
-        Text(
-            text = "Search Photo", style = MaterialTheme.typography.headlineSmall, color =
-            MaterialTheme.colorScheme.onBackground
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 20.dp)
+                .clickable { navigateToPhoto() },
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "Search Photo",
+                style = MaterialTheme.typography.headlineSmall,
+                color =
+                MaterialTheme.colorScheme.onBackground
+            )
+            Image(
+                imageVector = Icons.Filled.Search,
+                colorFilter = ColorFilter.tint(Color.White),
+                contentDescription = null
+            )
+
+        }
+
         PhotoBanner(photoList = uiState.pic)
 
         Text(
@@ -83,11 +111,11 @@ fun HomeBody(
     }
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PhotoBanner(
-    photoList: List<String>, modifier: Modifier = Modifier
+    photoList: List<String>,
+    modifier: Modifier = Modifier
 ) {
     HorizontalMultiBrowseCarousel(
         state = rememberCarouselState {
@@ -97,15 +125,13 @@ fun PhotoBanner(
             .width(412.dp)
             .height(221.dp),
         preferredItemWidth = 186.dp,
-        itemSpacing = 8.dp,
-
+        itemSpacing = 8.dp
         ) { i ->
         val item = photoList[i]
         val painter = rememberAsyncImagePainter(
             model = ImageRequest.Builder(LocalContext.current).data(item)
                 .memoryCachePolicy(CachePolicy.ENABLED).build()
         )
-
         if (painter.state is AsyncImagePainter.State.Loading) {
             CircularProgressIndicator()
         }
@@ -127,7 +153,7 @@ fun VideoBanner(modifier: Modifier = Modifier, videoList: List<String>) {
         verticalItemSpacing = 4.dp,
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         content = {
-            items(videoList) { photo ->
+            items(videoList, key = { it }) { photo ->
                 AsyncImage(
                     model = photo,
                     contentScale = ContentScale.Crop,

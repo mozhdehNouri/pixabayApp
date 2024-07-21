@@ -21,13 +21,8 @@ class PictureViewModel @Inject constructor(
         MutableStateFlow(PictureUiState())
         private set
 
-    init {
-        reducer(PictureUiEvent.UpdateQuery("yellow"))
-    }
-
-    private fun reducer(event: PictureUiEvent) {
+    fun reducer(event: PictureUiEvent) {
         when (event) {
-
             is PictureUiEvent.ClearMessage -> {
                 photoUiState.update {
                     it.copy(query = "")
