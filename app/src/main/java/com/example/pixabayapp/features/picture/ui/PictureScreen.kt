@@ -1,23 +1,23 @@
 package com.example.pixabayapp.features.picture.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Share
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -28,18 +28,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.graphics.Color.Companion.DarkGray
+import androidx.compose.ui.graphics.Color.Companion.LightGray
+import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.AsyncImage
 import com.example.pixabayapp.features.picture.ui.data.HitPictureUIResponse
 import com.example.pixabayapp.features.picture.ui.data.PictureUiEvent
 
 @Composable
-fun PhotoScreen(modifier: Modifier = Modifier) {
+fun PhotoScreen() {
     val viewmodel: PictureViewModel = hiltViewModel()
     val uiState by viewmodel.photoUiState.collectAsStateWithLifecycle()
     val radioOptions = listOf(
@@ -63,7 +63,7 @@ fun PhotoScreen(modifier: Modifier = Modifier) {
     }
 
     PictureUI(
-        itemList = radioOptions,
+        radioOptionListItem = radioOptions,
         selectedOption = selectedOption,
         onOptionSelected = { item ->
             selectedOption = item
@@ -72,20 +72,23 @@ fun PhotoScreen(modifier: Modifier = Modifier) {
         isLoading = uiState.loading,
         response = uiState.searchResults
     )
-
 }
 
 @Composable
-fun PictureUI(
-    itemList: List<String>,
-    selectedOption: String,
-    onOptionSelected: (String) -> Unit,
-    isLoading: Boolean,
+private fun PictureUI(
+    radioOptionListItem: List<String>,
     response: List<HitPictureUIResponse>,
+    selectedOption: String,
+    isLoading: Boolean,
+    onOptionSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier.fillMaxSize()) {
-        itemList.forEach { item ->
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = 12.dp, vertical = 8.dp)
+    ) {
+        radioOptionListItem.forEach { item ->
             RadioItem(
                 text = item,
                 selectedOption = selectedOption,
@@ -100,30 +103,57 @@ fun PictureUI(
 
         LazyColumn {
             items(response, key = { it.id }) { item ->
-                PictureItem(item)
+                PhotoListItem(item)
             }
         }
     }
 }
 
 @Composable
-fun RadioItem(
+private fun RadioItem(
     text: String,
     selectedOption: String,
     onOptionSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val shape = RoundedCornerShape(8.dp)
     Row(
-        modifier = modifier
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .padding(
+                vertical = 2.dp,
+                horizontal = 4.dp
+            )
+            .border(
+                width = 1.dp,
+                color = LightGray,
+                shape = shape
+            )
+            .background(
+                color = LightGray,
+                shape = shape
+            )
+            .clip(shape = shape)
+//            .clickable {
+//                onChecked(!isSelected)
+//            }
+            .padding(4.dp)
             .selectable(
                 selected = (text == selectedOption),
                 onClick = { onOptionSelected(text) },
                 role = Role.RadioButton
             )
-            .padding(horizontal = 16.dp),
-        verticalAlignment = Alignment.CenterVertically
     ) {
-        RadioButton(selected = (text == selectedOption), onClick = null)
+        if (text == selectedOption) {
+            Icon(
+                imageVector = Icons.Default.Check,
+                contentDescription = null,
+                tint = DarkGray
+            )
+        }
+
+//        RadioButton(selected = (text == selectedOption), onClick = null)
         Text(
             text = text, style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.padding(start = 16.dp)
@@ -131,33 +161,48 @@ fun RadioItem(
     }
 }
 
+
 @Composable
-private fun PictureItem(
-    item: HitPictureUIResponse,
-    modifier: Modifier = Modifier
+fun TextChipWithIconVisibility(
+    isSelected: Boolean,
+    text: String,
+    onChecked: (Boolean) -> Unit,
 ) {
-    Column(modifier = modifier.fillMaxWidth()) {
-        Box(modifier = Modifier.fillMaxWidth()) {
-            AsyncImage(
-                model = item.largeImageURL,
-                contentScale = ContentScale.Crop,
-                contentDescription = null,
-                modifier = modifier.clip(MaterialTheme.shapes.small)
+    val shape = RoundedCornerShape(8.dp)
+    Row(
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .padding(
+                vertical = 2.dp,
+                horizontal = 4.dp
             )
-            IconButton(
-                onClick = {},
-                modifier = Modifier
-                    .padding(20.dp)
-                    .background(
-                        Color.Red
-                    )
-                    .align(Alignment.CenterEnd)
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Share,
-                    contentDescription = null
-                )
+            .border(
+                width = 1.dp,
+                color = LightGray,
+                shape = shape
+            )
+            .background(
+                color = LightGray,
+                shape = shape
+            )
+            .clip(shape = shape)
+            .clickable {
+                onChecked(!isSelected)
             }
+            .padding(4.dp)
+    ) {
+        if (isSelected) {
+
+            Icon(
+                imageVector = Icons.Default.Check,
+                contentDescription = null,
+                tint = DarkGray
+                )
         }
+        Text(
+            text = text,
+            color = Red
+        )
     }
 }
