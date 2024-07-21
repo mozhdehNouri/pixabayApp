@@ -2,12 +2,14 @@ package com.example.pixabayapp.features.picture.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -30,7 +32,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color.Companion.DarkGray
 import androidx.compose.ui.graphics.Color.Companion.LightGray
-import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -74,6 +75,7 @@ fun PhotoScreen() {
     )
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun PictureUI(
     radioOptionListItem: List<String>,
@@ -88,14 +90,17 @@ private fun PictureUI(
             .fillMaxSize()
             .padding(horizontal = 12.dp, vertical = 8.dp)
     ) {
-        radioOptionListItem.forEach { item ->
-            RadioItem(
-                text = item,
-                selectedOption = selectedOption,
-                onOptionSelected = { selectedItem ->
-                    onOptionSelected(selectedItem)
-                })
+        FlowRow(Modifier.fillMaxWidth()) {
+            radioOptionListItem.forEach { item ->
+                RadioItem(
+                    text = item,
+                    selectedOption = selectedOption,
+                    onOptionSelected = { selectedItem ->
+                        onOptionSelected(selectedItem)
+                    })
+            }
         }
+
         Spacer(modifier = Modifier.padding(top = 20.dp))
         if (isLoading) {
             CircularProgressIndicator()
@@ -135,9 +140,6 @@ private fun RadioItem(
                 shape = shape
             )
             .clip(shape = shape)
-//            .clickable {
-//                onChecked(!isSelected)
-//            }
             .padding(4.dp)
             .selectable(
                 selected = (text == selectedOption),
@@ -152,57 +154,9 @@ private fun RadioItem(
                 tint = DarkGray
             )
         }
-
-//        RadioButton(selected = (text == selectedOption), onClick = null)
         Text(
             text = text, style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.padding(start = 16.dp)
-        )
-    }
-}
-
-
-@Composable
-fun TextChipWithIconVisibility(
-    isSelected: Boolean,
-    text: String,
-    onChecked: (Boolean) -> Unit,
-) {
-    val shape = RoundedCornerShape(8.dp)
-    Row(
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .padding(
-                vertical = 2.dp,
-                horizontal = 4.dp
-            )
-            .border(
-                width = 1.dp,
-                color = LightGray,
-                shape = shape
-            )
-            .background(
-                color = LightGray,
-                shape = shape
-            )
-            .clip(shape = shape)
-            .clickable {
-                onChecked(!isSelected)
-            }
-            .padding(4.dp)
-    ) {
-        if (isSelected) {
-
-            Icon(
-                imageVector = Icons.Default.Check,
-                contentDescription = null,
-                tint = DarkGray
-                )
-        }
-        Text(
-            text = text,
-            color = Red
         )
     }
 }
