@@ -1,4 +1,3 @@
-import org.gradle.kotlin.dsl.libs
 import java.util.Properties
 
 plugins {
@@ -103,6 +102,8 @@ dependencies {
     // haze
     implementation(libs.haze.haze)
     implementation(libs.haze.materials)
+
+    implementation(libs.constainLayout)
 
 
     testImplementation(libs.junit)
