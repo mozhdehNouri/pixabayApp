@@ -24,9 +24,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,41 +34,32 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.pixabayapp.features.picture.ui.data.HitPictureUIResponse
-import com.example.pixabayapp.features.picture.ui.data.PictureUiEvent
+import com.example.pixabayapp.features.picture.ui.state_and_event.PhotoDataActions
+import com.example.pixabayapp.features.picture.ui.state_and_event.PhotoDataState
+import com.example.pixabayapp.features.picture.ui.state_and_event.PhotoUIActions
+import com.example.pixabayapp.features.picture.ui.state_and_event.PhotoUIState
 
 @Composable
 fun PhotoScreen() {
     val viewmodel: PictureViewModel = hiltViewModel()
-    val uiState by viewmodel.photoUiState.collectAsStateWithLifecycle()
-    val radioOptions = listOf(
-        "animal",
-        "background",
-        "flowers",
-        "woman",
-        "money",
-        "sport",
-        "house",
-        "travel",
-        "people"
-    )
-    var selectedOption by remember {
-        mutableStateOf(
-            radioOptions[0]
-        )
-    }
-    LaunchedEffect(key1 = Unit) {
-        viewmodel.reducer(PictureUiEvent.UpdateQuery(radioOptions[0]))
+    val uiState by viewmodel.photoUIState.collectAsStateWithLifecycle()
+    val uiDataState by viewmodel.photoDataState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewmodel.updateDataAction(PhotoDataActions.GetPhoto)
     }
 
     PictureUI(
-        radioOptionListItem = radioOptions,
-        selectedOption = selectedOption,
+        radioOptionListItem = viewmodel.radioOptionsList,
+        selectedOption = (uiState as? PhotoUIState.LastSelectedQuery)?.query
+            ?: "",
         onOptionSelected = { item ->
-            selectedOption = item
-            viewmodel.reducer(PictureUiEvent.UpdateQuery(selectedOption))
+            viewmodel.updateUIAction(PhotoUIActions.UpdateCategory(item))
+            viewmodel.updateDataAction(PhotoDataActions.GetPhoto)
         },
-        isLoading = uiState.loading,
-        response = uiState.searchResults
+        isLoading = uiDataState is PhotoDataState.Loading,
+        response = (uiDataState as? PhotoDataState.PhotoSearchResult)?.searchResults
+            ?: emptyList()
     )
 }
 
@@ -100,7 +88,6 @@ private fun PictureUI(
                     })
             }
         }
-
         Spacer(modifier = Modifier.padding(top = 20.dp))
         if (isLoading) {
             CircularProgressIndicator()
@@ -125,7 +112,7 @@ private fun RadioItem(
     Row(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
+        modifier = modifier
             .padding(
                 vertical = 2.dp,
                 horizontal = 4.dp
