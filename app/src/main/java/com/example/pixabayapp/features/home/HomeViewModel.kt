@@ -32,8 +32,8 @@ class HomeViewModel @Inject constructor(
         uiState.update { HomeUiState.Loading }
 
         val deferredResults = listOf(
-            async { photoRepository.getPicture("yellow") },
-            async { videoRepository.getVideo("dark") }
+            async { photoRepository.getPicture("strange pink") },
+            async { videoRepository.getVideo("dark and Pink") }
         )
         val results = awaitAll(*deferredResults.toTypedArray())
         when {

@@ -1,33 +1,36 @@
 pluginManagement {
     repositories {
+        if (System.getenv("USE_SAMENTIC_MAVEN")?.toBooleanStrictOrNull() == true) {
             maven {
-                url =
-                    uri("https://nexus.samentic.com/repository/samentic-android")
+                url = uri(System.getenv("SAMENTIC_NEXUS_URL")!!)
                 credentials {
                     username = System.getenv("SAMENTIC_NEXUS_USERNAME")!!
                     password = System.getenv("SAMENTIC_NEXUS_PASSWORD")!!
                 }
             }
-                google()
-                mavenCentral()
-                gradlePluginPortal()
-            }
+        } else {
+            google()
+            mavenCentral()
+        }
+    }
         }
 
 
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-        maven {
-            url =
-                uri("https://nexus.samentic.com/repository/samentic-android")
-            credentials {
-                username = System.getenv("SAMENTIC_NEXUS_USERNAME")!!
-                password = System.getenv("SAMENTIC_NEXUS_PASSWORD")!!
+        if (System.getenv("USE_SAMENTIC_MAVEN")?.toBooleanStrictOrNull() == true) {
+            maven {
+                url = uri(System.getenv("SAMENTIC_NEXUS_URL")!!)
+                credentials {
+                    username = System.getenv("SAMENTIC_NEXUS_USERNAME")!!
+                    password = System.getenv("SAMENTIC_NEXUS_PASSWORD")!!
+                }
             }
+        } else {
+            google()
+            mavenCentral()
         }
-        google()
-        mavenCentral()
     }
 }
 

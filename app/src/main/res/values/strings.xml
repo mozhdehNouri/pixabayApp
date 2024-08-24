@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">PixabayApp</string>
+    <string name="lbl_photo">Photo</string>
+    <string name="lbl_video">Video</string>
 </resources>
