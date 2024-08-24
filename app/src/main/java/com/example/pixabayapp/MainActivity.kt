@@ -19,8 +19,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val appState = rememberPixabayAppState(networkMonitor = networkMonitor)
             PixabayApp(
-                appState = appState,
-                exitApp = {}
+                appState = appState
             )
         }
     }

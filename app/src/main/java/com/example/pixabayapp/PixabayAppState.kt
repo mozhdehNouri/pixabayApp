@@ -1,14 +1,25 @@
 package com.example.pixabayapp
 
-import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -17,7 +28,6 @@ import com.example.pixabayapp.core.networkconnection.NetworkMonitor
 import com.example.pixabayapp.features.PixabayRoute
 import com.example.pixabayapp.features.home.homeScreen
 import com.example.pixabayapp.features.picture.pictureScreen
-import com.example.pixabayapp.features.picture.ui.PhotoScreen
 import com.example.pixabayapp.ui.theme.PixabayAppTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted
@@ -66,24 +76,69 @@ class PixabayAppState(
 @Composable
 fun PixabayApp(
     appState: PixabayAppState,
-//    navigateToVideo: () -> Unit,
-//    navigateToPhoto: () -> Unit,
-    exitApp: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val bottomNavItems = BottomNavItem.entries.toList()
+    var selectedNavItem by remember {
+        mutableStateOf(bottomNavItems.first())
+    }
     PixabayAppTheme {
-        Scaffold(modifier = modifier.fillMaxSize()) { innerPadding ->
+        Scaffold(modifier = modifier.fillMaxSize(),
+            bottomBar = { BottomAppBar( ) {
+                bottomNavItems.forEach {
+                    NavigationBarItem(
+                        selected = it == selectedNavItem,
+                        label = {
+                            Text(it.title)
+                        },
+                        onClick = {
+                            it.route?.let { route ->
+                                appState.navigateTo(route)
+                            }
+                            selectedNavItem = it
+                        },
+                        icon = {
+                            Image(
+                                painter = painterResource(id = it.icon),
+                                contentDescription = null,
+                                modifier = Modifier.size(24.dp),
+                                colorFilter = ColorFilter.tint(Color.White)
+                            )
+                        })
+                }
+            }
+        }) { innerPadding ->
             NavHost(
                 navController = appState.navHostController,
                 startDestination = PixabayRoute.HOME,
                 modifier = Modifier.padding(innerPadding)
             ) {
-                homeScreen(
-                    navigateToPhoto = { appState.navigateTo(PixabayRoute.PHOTO) },
-                    navigateToVideo = { appState.navigateTo(PixabayRoute.VIDEO) }
-                )
+                homeScreen()
                 pictureScreen()
             }
         }
     }
+}
+
+enum class BottomNavItem(
+    val title: String,
+    val icon: Int,
+    val route: String? = null,
+) {
+    Home(
+        title = "Home",
+        icon = R.drawable.ic_home,
+        route = PixabayRoute.HOME
+    ),
+    Photo(
+        title = "Photo",
+        icon = R.drawable.ic_pic,
+        route = PixabayRoute.PHOTO
+    ),
+    Video(
+        title = "Video",
+        icon = R.drawable.ic_video,
+        route = PixabayRoute.VIDEO
+    )
+
 }

@@ -4,11 +4,8 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.example.pixabayapp.features.PixabayRoute
 
-fun NavGraphBuilder.homeScreen(
-    navigateToPhoto: () -> Unit,
-    navigateToVideo: () -> Unit
-) {
+fun NavGraphBuilder.homeScreen() {
     composable(PixabayRoute.HOME) {
-        HomeScreen(navigateToPhoto = navigateToPhoto)
+        HomeScreen()
     }
 }
