@@ -80,7 +80,7 @@ private fun PictureUI(
     ) {
         FlowRow(Modifier.fillMaxWidth()) {
             radioOptionListItem.forEach { item ->
-                RadioItem(
+                SelectedOption(
                     text = item,
                     selectedOption = selectedOption,
                     onOptionSelected = { selectedItem ->
@@ -102,13 +102,13 @@ private fun PictureUI(
 }
 
 @Composable
-private fun RadioItem(
+private fun SelectedOption(
     text: String,
     selectedOption: String,
     onOptionSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val shape = RoundedCornerShape(8.dp)
+    val shape =MaterialTheme.shapes.small
     Row(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
@@ -119,11 +119,11 @@ private fun RadioItem(
             )
             .border(
                 width = 1.dp,
-                color = LightGray,
+                color = MaterialTheme.colorScheme.secondary,
                 shape = shape
             )
             .background(
-                color = LightGray,
+                color = MaterialTheme.colorScheme.tertiaryContainer,
                 shape = shape
             )
             .clip(shape = shape)
@@ -142,8 +142,9 @@ private fun RadioItem(
             )
         }
         Text(
-            text = text, style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(start = 16.dp)
+            text = text, style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(start = 16.dp),
+            color = MaterialTheme.colorScheme.onTertiaryContainer
         )
     }
 }

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -102,7 +103,7 @@ fun PixabayApp(
                                 painter = painterResource(id = it.icon),
                                 contentDescription = null,
                                 modifier = Modifier.size(24.dp),
-                                colorFilter = ColorFilter.tint(Color.White)
+                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.secondary)
                             )
                         })
                 }
@@ -140,5 +141,4 @@ enum class BottomNavItem(
         icon = R.drawable.ic_video,
         route = PixabayRoute.VIDEO
     )
-
 }
