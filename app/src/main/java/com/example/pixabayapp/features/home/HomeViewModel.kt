@@ -32,8 +32,8 @@ class HomeViewModel @Inject constructor(
         uiState.update { HomeUiState.Loading }
 
         val deferredResults = listOf(
-            async { photoRepository.getPicture("strange pink") },
-            async { videoRepository.getVideo("dark and Pink") }
+            async { photoRepository.getPicture("sunset") },
+            async { videoRepository.getVideo("yellow") }
         )
         val results = awaitAll(*deferredResults.toTypedArray())
         when {
@@ -50,9 +50,9 @@ class HomeViewModel @Inject constructor(
 
             else -> {
                 val pic = results.filterIsInstance<AppResult.Success<PictureUIResponse>>()[0]
-                    .data.hits.slice(0..3).map { it.previewURL }.reversed()
+                    .data.hits.map { it.userImageURL }
                 val video = results.filterIsInstance<AppResult.Success<VideoUiResponse>>()[1]
-                    .data.hits.map { it.videos.large.thumbnail }.reversed()
+                    .data.hits.map { it.videos.small.thumbnail }.slice(0..5)
                 uiState.update {
                     HomeUiState.Success(pic = pic, video = video)
                 }
