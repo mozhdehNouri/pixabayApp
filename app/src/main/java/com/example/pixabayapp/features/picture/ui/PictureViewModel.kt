@@ -37,7 +37,6 @@ class PictureViewModel @Inject constructor(
         "people"
     )
 
-
     var photoUIState =
         MutableStateFlow<PhotoUIState>(PhotoUIState.Nothing)
         private set

@@ -8,8 +8,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
@@ -34,6 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -46,6 +49,11 @@ import coil.decode.VideoFrameDecoder
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import coil.request.videoFrameMillis
+import com.example.pixabayapp.R
+import com.example.pixabayapp.features.ColumnAllPaddingLocal
+import com.example.pixabayapp.features.RowHorizontalPaddingLocal
+import com.example.pixabayapp.features.RowVerticalPaddingLocal
+import com.example.pixabayapp.features.TextVerticalPaddingLocal
 import kotlin.random.Random
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -62,11 +70,13 @@ fun HomeScreen() {
                 CircularProgressIndicator()
             }
         }
+
         is HomeUiState.Error -> {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(text = (uiState as HomeUiState.Error).message.toString())
             }
         }
+
         is HomeUiState.Success -> {
             HomeBody(
                 uiState as HomeUiState.Success, scrollBehavior = scrollBehavior
@@ -74,6 +84,7 @@ fun HomeScreen() {
         }
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeBody(
@@ -81,15 +92,18 @@ fun HomeBody(
     scrollBehavior: TopAppBarScrollBehavior,
     modifier: Modifier = Modifier
 ) {
+    val columnPadding = ColumnAllPaddingLocal.current
+    val textPadding = TextVerticalPaddingLocal.current
     Scaffold(modifier = modifier
-        .fillMaxSize()
+        .fillMaxSize().padding(columnPadding)
         .background(MaterialTheme.colorScheme.background)
         .nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             LargeTopAppBar(
                 title = {
                     Text(
-                        "Pixabay", color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        stringResource(R.string.lbl_pixabay),
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
                         style = MaterialTheme.typography.bodyLarge
                     )
                 },
@@ -108,8 +122,12 @@ fun HomeBody(
                 .padding(paddingValues)
         ) {
             VideoBanner(videoList = uiState.video)
-            Text("E X P L O R E", style = MaterialTheme.typography.titleLarge, modifier= Modifier
-                .padding(vertical = 10.dp))
+            Text(
+                stringResource(R.string.lbl_explore),
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier
+                    .padding(textPadding)
+            )
             PhotoBanner(photoList = uiState.pic)
         }
     }
@@ -121,19 +139,22 @@ fun VideoBanner(
     videoList: List<String>,
     modifier: Modifier = Modifier
 ) {
+    val rowPadding = RowVerticalPaddingLocal.current
+    val context =LocalContext.current
     HorizontalMultiBrowseCarousel(
         state = rememberCarouselState {
             videoList.count()
         },
         modifier = modifier
             .width(412.dp)
-            .height(221.dp).padding(top = 10.dp, bottom = 10.dp),
+            .height(221.dp)
+            .padding(rowPadding),
         preferredItemWidth = 186.dp,
         itemSpacing = 5.dp
     ) { i ->
         val item = videoList[i]
         val painter = rememberAsyncImagePainter(
-            model = ImageRequest.Builder(LocalContext.current).data(item)
+            model = ImageRequest.Builder(context).data(item)
                 .memoryCachePolicy(CachePolicy.ENABLED).build()
         )
         if (painter.state is AsyncImagePainter.State.Loading) {
@@ -141,7 +162,7 @@ fun VideoBanner(
         }
         Image(
             modifier = Modifier
-                .height(400.dp)
+                .heightIn(400.dp)
                 .clip(MaterialTheme.shapes.small),
             painter = painter,
             contentDescription = null,
@@ -151,7 +172,10 @@ fun VideoBanner(
 }
 
 @Composable
-fun PhotoBanner(modifier: Modifier = Modifier, photoList: List<String>) {
+fun PhotoBanner(
+    photoList: List<String>,
+    modifier: Modifier = Modifier
+) {
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Fixed(2),
         verticalItemSpacing = 5.dp,
@@ -165,8 +189,8 @@ fun PhotoBanner(modifier: Modifier = Modifier, photoList: List<String>) {
                     contentDescription = null,
                     modifier = Modifier
                         .clip(MaterialTheme.shapes.medium)
-                        .width(Random.nextInt(300, 500).dp)
-                        .height(Random.nextInt(100, 200).dp)
+                        .widthIn(Random.nextInt(300, 500).dp)
+                        .heightIn(Random.nextInt(100, 200).dp)
                 )
             }
         }

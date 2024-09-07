@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import coil.compose.AsyncImage
+import com.example.pixabayapp.features.PixabayDarkPreview
 import com.example.pixabayapp.features.picture.ui.data.HitPictureUIResponse
 
 @Composable
@@ -102,11 +103,10 @@ fun PhotoListItem(item: HitPictureUIResponse) {
             )
         }
 
-
     }
 }
 
-@Preview
+@PixabayDarkPreview
 @Composable
 fun Preview(modifier: Modifier = Modifier) {
     PhotoListItem(
@@ -118,14 +118,14 @@ fun Preview(modifier: Modifier = Modifier) {
             0,
             0,
             0,
-            "ytyt0",
-            0,
-            "ytyty",
+            "",
             0,
             "",
             0,
-            "ytyty",
-            "tytyt",
+            "",
+            0,
+            "",
+            "",
             "",
             0,
             "",

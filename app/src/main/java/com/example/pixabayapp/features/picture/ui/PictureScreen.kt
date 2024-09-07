@@ -33,6 +33,10 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.pixabayapp.features.ColumnAllPaddingLocal
+import com.example.pixabayapp.features.ColumnVerticalPaddingLocal
+import com.example.pixabayapp.features.RowAllPaddingLocal
+import com.example.pixabayapp.features.TextHorizontalPaddingLocal
 import com.example.pixabayapp.features.picture.ui.data.HitPictureUIResponse
 import com.example.pixabayapp.features.picture.ui.state_and_event.PhotoDataActions
 import com.example.pixabayapp.features.picture.ui.state_and_event.PhotoDataState
@@ -73,10 +77,12 @@ private fun PictureUI(
     onOptionSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val columnPadding = ColumnAllPaddingLocal.current
+    val columnVerticalPadding = ColumnVerticalPaddingLocal.current
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = 12.dp, vertical = 8.dp)
+            .padding(columnPadding)
     ) {
         FlowRow(Modifier.fillMaxWidth()) {
             radioOptionListItem.forEach { item ->
@@ -88,7 +94,7 @@ private fun PictureUI(
                     })
             }
         }
-        Spacer(modifier = Modifier.padding(top = 20.dp))
+        Spacer(modifier = Modifier.padding(columnVerticalPadding))
         if (isLoading) {
             CircularProgressIndicator()
         }
@@ -108,14 +114,15 @@ private fun SelectedOption(
     onOptionSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val shape =MaterialTheme.shapes.small
+    val shape = MaterialTheme.shapes.small
+    val rowPadding = RowAllPaddingLocal.current
+    val textPadding = TextHorizontalPaddingLocal.current
     Row(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .padding(
-                vertical = 2.dp,
-                horizontal = 4.dp
+                rowPadding
             )
             .border(
                 width = 1.dp,
@@ -127,7 +134,7 @@ private fun SelectedOption(
                 shape = shape
             )
             .clip(shape = shape)
-            .padding(4.dp)
+            .padding(rowPadding)
             .selectable(
                 selected = (text == selectedOption),
                 onClick = { onOptionSelected(text) },
@@ -143,7 +150,7 @@ private fun SelectedOption(
         }
         Text(
             text = text, style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(start = 16.dp),
+            modifier = Modifier.padding(textPadding),
             color = MaterialTheme.colorScheme.onTertiaryContainer
         )
     }
