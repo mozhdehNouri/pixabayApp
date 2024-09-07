@@ -2,4 +2,6 @@
     <string name="app_name">PixabayApp</string>
     <string name="lbl_photo">Photo</string>
     <string name="lbl_video">Video</string>
+    <string name="lbl_pixabay">Pixabay</string>
+    <string name="lbl_explore">E X P L O R E</string>
 </resources>
