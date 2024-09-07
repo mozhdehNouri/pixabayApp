@@ -1,11 +1,12 @@
 package com.example.pixabayapp.features.home
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -40,25 +41,22 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
-import coil.decode.VideoFrameDecoder
 import coil.request.CachePolicy
 import coil.request.ImageRequest
-import coil.request.videoFrameMillis
 import com.example.pixabayapp.R
 import com.example.pixabayapp.features.ColumnAllPaddingLocal
-import com.example.pixabayapp.features.RowHorizontalPaddingLocal
 import com.example.pixabayapp.features.RowVerticalPaddingLocal
 import com.example.pixabayapp.features.TextVerticalPaddingLocal
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(coroutineScope: CoroutineScope) {
     val viewModel: HomeViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val scrollBehavior =
@@ -75,11 +73,18 @@ fun HomeScreen() {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(text = (uiState as HomeUiState.Error).message.toString())
             }
+
         }
 
         is HomeUiState.Success -> {
             HomeBody(
-                uiState as HomeUiState.Success, scrollBehavior = scrollBehavior
+                uiState as HomeUiState.Success, scrollBehavior = scrollBehavior, onTabBarClick = {
+                    coroutineScope.launch {
+                        while (true) {
+                            Log.d("HomeScreenCoroutine", "isActive")
+                        }
+                    }
+                }
             )
         }
     }
@@ -90,12 +95,14 @@ fun HomeScreen() {
 fun HomeBody(
     uiState: HomeUiState.Success,
     scrollBehavior: TopAppBarScrollBehavior,
+    onTabBarClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val columnPadding = ColumnAllPaddingLocal.current
     val textPadding = TextVerticalPaddingLocal.current
     Scaffold(modifier = modifier
-        .fillMaxSize().padding(columnPadding)
+        .fillMaxSize()
+        .padding(columnPadding)
         .background(MaterialTheme.colorScheme.background)
         .nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -113,7 +120,12 @@ fun HomeBody(
                         .Transparent
                 ),
                 scrollBehavior = scrollBehavior,
-                modifier = Modifier.clip(RoundedCornerShape(bottomEnd = 20.dp, bottomStart = 20.dp))
+                modifier = Modifier
+                    .clip(RoundedCornerShape(bottomEnd = 20.dp, bottomStart = 20.dp))
+                    .clickable {
+                        onTabBarClick()
+                    },
+
             )
         }) { paddingValues ->
         Column(
