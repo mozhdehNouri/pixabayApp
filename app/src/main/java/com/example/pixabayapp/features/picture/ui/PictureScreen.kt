@@ -21,9 +21,13 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,9 +52,16 @@ fun PhotoScreen() {
     val viewmodel: PictureViewModel = hiltViewModel()
     val uiState by viewmodel.photoUIState.collectAsStateWithLifecycle()
     val uiDataState by viewmodel.photoDataState.collectAsStateWithLifecycle()
+    var query by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
         viewmodel.updateDataAction(PhotoDataActions.GetPhoto)
+    }
+
+    LaunchedEffect(query) {
+        if (query.isNotEmpty()) {
+            viewmodel.updateDataAction(PhotoDataActions.GetPhoto)
+        }
     }
 
     PictureUI(
@@ -62,6 +73,10 @@ fun PhotoScreen() {
             viewmodel.updateDataAction(PhotoDataActions.GetPhoto)
         },
         isLoading = uiDataState is PhotoDataState.Loading,
+        query = query,
+        onQueryChange = {
+            query = it
+        },
         response = (uiDataState as? PhotoDataState.PhotoSearchResult)?.searchResults
             ?: emptyList()
     )
@@ -74,6 +89,8 @@ private fun PictureUI(
     response: List<HitPictureUIResponse>,
     selectedOption: String,
     isLoading: Boolean,
+    query: String,
+    onQueryChange: (String) -> Unit,
     onOptionSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -95,6 +112,11 @@ private fun PictureUI(
             }
         }
         Spacer(modifier = Modifier.padding(columnVerticalPadding))
+        TextField(
+            value = query,
+            onValueChange = { onQueryChange(it) },
+            modifier = Modifier.fillMaxWidth()
+        )
         if (isLoading) {
             CircularProgressIndicator()
         }
@@ -123,11 +145,6 @@ private fun SelectedOption(
         modifier = modifier
             .padding(
                 rowPadding
-            )
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.secondary,
-                shape = shape
             )
             .background(
                 color = MaterialTheme.colorScheme.tertiaryContainer,
