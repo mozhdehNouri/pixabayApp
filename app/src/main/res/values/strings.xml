@@ -4,4 +4,8 @@
     <string name="lbl_video">Video</string>
     <string name="lbl_pixabay">Pixabay</string>
     <string name="lbl_explore">E X P L O R E</string>
+    <string name="lbl_response_is_empty">No response, List is empty</string>
+    <string name="lbl_text_field_hint">add your keyword</string>
+    <string name="lbl_try_agan">Try again</string>
+
 </resources>

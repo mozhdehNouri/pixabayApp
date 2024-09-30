@@ -1,6 +1,5 @@
 package com.example.pixabayapp.features.home
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,6 +16,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LargeTopAppBar
@@ -51,7 +51,6 @@ import com.example.pixabayapp.features.ColumnAllPaddingLocal
 import com.example.pixabayapp.features.RowVerticalPaddingLocal
 import com.example.pixabayapp.features.TextVerticalPaddingLocal
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,21 +69,26 @@ fun HomeScreen(coroutineScope: CoroutineScope) {
         }
 
         is HomeUiState.Error -> {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 Text(text = (uiState as HomeUiState.Error).message.toString())
+                Button(onClick = viewModel::getHomeBannerData) {
+                    Text(
+                        stringResource(R.string.lbl_try_agan),
+                        style = MaterialTheme.typography.titleSmall,
+                        modifier = Modifier.padding(top = 10.dp)
+                    )
+                }
             }
 
         }
 
         is HomeUiState.Success -> {
             HomeBody(
-                uiState as HomeUiState.Success, scrollBehavior = scrollBehavior, onTabBarClick = {
-                    coroutineScope.launch {
-                        while (true) {
-                            Log.d("HomeScreenCoroutine", "isActive")
-                        }
-                    }
-                }
+                uiState as HomeUiState.Success, scrollBehavior = scrollBehavior, onTabBarClick = {}
             )
         }
     }
@@ -126,7 +130,7 @@ fun HomeBody(
                         onTabBarClick()
                     },
 
-            )
+                )
         }) { paddingValues ->
         Column(
             modifier = modifier
@@ -152,7 +156,7 @@ fun VideoBanner(
     modifier: Modifier = Modifier
 ) {
     val rowPadding = RowVerticalPaddingLocal.current
-    val context =LocalContext.current
+    val context = LocalContext.current
     HorizontalMultiBrowseCarousel(
         state = rememberCarouselState {
             videoList.count()

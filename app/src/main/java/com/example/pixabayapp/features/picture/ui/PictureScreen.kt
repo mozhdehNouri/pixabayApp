@@ -1,7 +1,7 @@
 package com.example.pixabayapp.features.picture.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -14,9 +14,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -32,11 +32,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color.Companion.DarkGray
-import androidx.compose.ui.graphics.Color.Companion.LightGray
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.pixabayapp.R
 import com.example.pixabayapp.features.ColumnAllPaddingLocal
 import com.example.pixabayapp.features.ColumnVerticalPaddingLocal
 import com.example.pixabayapp.features.RowAllPaddingLocal
@@ -58,12 +59,6 @@ fun PhotoScreen() {
         viewmodel.updateDataAction(PhotoDataActions.GetPhoto)
     }
 
-    LaunchedEffect(query) {
-        if (query.isNotEmpty()) {
-            viewmodel.updateDataAction(PhotoDataActions.GetPhoto)
-        }
-    }
-
     PictureUI(
         radioOptionListItem = viewmodel.radioOptionsList,
         selectedOption = (uiState as? PhotoUIState.LastSelectedQuery)?.query
@@ -71,6 +66,11 @@ fun PhotoScreen() {
         onOptionSelected = { item ->
             viewmodel.updateUIAction(PhotoUIActions.UpdateCategory(item))
             viewmodel.updateDataAction(PhotoDataActions.GetPhoto)
+        },
+        onSearchClick = {
+            if (query.isNotEmpty()) {
+                viewmodel.updateDataAction(PhotoDataActions.GetPhoto)
+            }
         },
         isLoading = uiDataState is PhotoDataState.Loading,
         query = query,
@@ -92,6 +92,7 @@ private fun PictureUI(
     query: String,
     onQueryChange: (String) -> Unit,
     onOptionSelected: (String) -> Unit,
+    onSearchClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val columnPadding = ColumnAllPaddingLocal.current
@@ -99,7 +100,9 @@ private fun PictureUI(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(columnPadding)
+            .padding(columnPadding),
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         FlowRow(Modifier.fillMaxWidth()) {
             radioOptionListItem.forEach { item ->
@@ -115,12 +118,24 @@ private fun PictureUI(
         TextField(
             value = query,
             onValueChange = { onQueryChange(it) },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(), label = {
+                Text(
+                    stringResource(R.string.lbl_text_field_hint),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }, trailingIcon = {
+                Icon(Icons.Default.Search, null, Modifier.clickable { onSearchClick() })
+            }, singleLine = true
         )
         if (isLoading) {
-            CircularProgressIndicator()
+            CircularProgressIndicator(modifier = Modifier.padding(top = 20.dp))
         }
-
+        if (response.isEmpty()) {
+            Text(
+                stringResource(R.string.lbl_response_is_empty),
+                modifier = Modifier.padding(top = 20.dp)
+            )
+        }
         LazyColumn {
             items(response, key = { it.id }) { item ->
                 PhotoListItem(item)

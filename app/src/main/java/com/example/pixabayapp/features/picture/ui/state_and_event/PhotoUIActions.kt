@@ -4,6 +4,4 @@ package com.example.pixabayapp.features.picture.ui.state_and_event
 
 sealed interface PhotoUIActions {
     data class UpdateCategory(val category: String) : PhotoUIActions
-    data class UpdateTextField(val query: String) : PhotoUIActions
-    data class Refresh(val currentQuery: String) : PhotoUIActions
 }

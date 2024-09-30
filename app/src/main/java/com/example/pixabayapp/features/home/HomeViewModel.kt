@@ -28,7 +28,7 @@ class HomeViewModel @Inject constructor(
         getHomeBannerData()
     }
 
-    private fun getHomeBannerData() = viewModelScope.launch {
+    fun getHomeBannerData() = viewModelScope.launch {
         uiState.update { HomeUiState.Loading }
 
         val deferredResults = listOf(
