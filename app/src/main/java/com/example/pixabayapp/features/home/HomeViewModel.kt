@@ -33,6 +33,7 @@ class HomeViewModel @Inject constructor(
 
         val deferredResults = listOf(
             async { photoRepository.getPicture("sunset") },
+            async { photoRepository.getPicture("animal") },
             async { videoRepository.getVideo("yellow") }
         )
         val results = awaitAll(*deferredResults.toTypedArray())
@@ -45,16 +46,25 @@ class HomeViewModel @Inject constructor(
             }
 
             results.isEmpty() -> {
-                uiState.update { HomeUiState.Error("Nothing to show. Try again.") }
+                uiState.update { HomeUiState.Error("Empty result") }
             }
 
             else -> {
-                val pic = results.filterIsInstance<AppResult.Success<PictureUIResponse>>()[0]
-                    .data.hits.map { it.userImageURL }
-                val video = results.filterIsInstance<AppResult.Success<VideoUiResponse>>()[1]
-                    .data.hits.map { it.videos.small.thumbnail }.slice(0..5)
+                val explorePic = results.filterIsInstance<PictureUIResponse>()[0]
+                    .hits.map { it.userImageURL }.slice(0..5)
+
+                val animalPic =
+                    results.filterIsInstance<PictureUIResponse>()[1].hits.map { it.previewURL }
+
+
+                val video = results.filterIsInstance<VideoUiResponse>()[1]
+                    .hits.map { it.videos.small.thumbnail }.slice(0..5)
                 uiState.update {
-                    HomeUiState.Success(pic = pic, video = video)
+                    HomeUiState.Success(
+                        explorePic = explorePic,
+                        animalPic = animalPic,
+                        video = video
+                    )
                 }
             }
         }
@@ -65,8 +75,10 @@ class HomeViewModel @Inject constructor(
 sealed class HomeUiState {
     data object Loading : HomeUiState()
     data class Success(
-        val pic: List<String>,
+        val explorePic: List<String>,
+        val animalPic: List<String>,
         val video: List<String>
     ) : HomeUiState()
+
     data class Error(val message: String?) : HomeUiState()
 }

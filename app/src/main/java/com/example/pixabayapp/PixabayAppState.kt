@@ -113,7 +113,7 @@ fun PixabayApp(
                 startDestination = PixabayRoute.HOME,
                 modifier = Modifier.padding(innerPadding)
             ) {
-                homeScreen(appState.coroutineScope)
+                homeScreen()
                 pictureScreen()
             }
         }
