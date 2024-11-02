@@ -1,39 +1,50 @@
 package com.example.pixabayapp.features.picture.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.DarkGray
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -53,10 +64,10 @@ fun PhotoScreen() {
     val viewmodel: PictureViewModel = hiltViewModel()
     val uiState by viewmodel.photoUIState.collectAsStateWithLifecycle()
     val uiDataState by viewmodel.photoDataState.collectAsStateWithLifecycle()
-    var query by remember { mutableStateOf("") }
+    val searchQuery by viewmodel.searchQuery.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        viewmodel.updateDataAction(PhotoDataActions.GetPhoto)
+        viewmodel.updateDataAction(PhotoDataActions.GetPhotoByTag)
     }
 
     PictureUI(
@@ -65,18 +76,12 @@ fun PhotoScreen() {
             ?: "",
         onOptionSelected = { item ->
             viewmodel.updateUIAction(PhotoUIActions.UpdateCategory(item))
-            viewmodel.updateDataAction(PhotoDataActions.GetPhoto)
-        },
-        onSearchClick = {
-            if (query.isNotEmpty()) {
-                viewmodel.updateDataAction(PhotoDataActions.GetPhoto)
-            }
+            viewmodel.updateDataAction(PhotoDataActions.GetPhotoByTag)
         },
         isLoading = uiDataState is PhotoDataState.Loading,
-        query = query,
-        onQueryChange = {
-            query = it
-        },
+        query = searchQuery,
+        onQueryChange = viewmodel::onQueryChanged,
+        onSearchTriggered = { viewmodel.onQueryTriggered() },
         response = (uiDataState as? PhotoDataState.PhotoSearchResult)?.searchResults
             ?: emptyList()
     )
@@ -92,7 +97,7 @@ private fun PictureUI(
     query: String,
     onQueryChange: (String) -> Unit,
     onOptionSelected: (String) -> Unit,
-    onSearchClick: () -> Unit,
+    onSearchTriggered: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val columnPadding = ColumnAllPaddingLocal.current
@@ -104,6 +109,7 @@ private fun PictureUI(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        SearchToolbar(query, onQueryChange, onSearchTriggered = onSearchTriggered)
         FlowRow(Modifier.fillMaxWidth()) {
             radioOptionListItem.forEach { item ->
                 SelectedOption(
@@ -114,19 +120,7 @@ private fun PictureUI(
                     })
             }
         }
-        Spacer(modifier = Modifier.padding(columnVerticalPadding))
-        TextField(
-            value = query,
-            onValueChange = { onQueryChange(it) },
-            modifier = Modifier.fillMaxWidth(), label = {
-                Text(
-                    stringResource(R.string.lbl_text_field_hint),
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }, trailingIcon = {
-                Icon(Icons.Default.Search, null, Modifier.clickable { onSearchClick() })
-            }, singleLine = true
-        )
+
         if (isLoading) {
             CircularProgressIndicator(modifier = Modifier.padding(top = 20.dp))
         }
@@ -186,4 +180,76 @@ private fun SelectedOption(
             color = MaterialTheme.colorScheme.onTertiaryContainer
         )
     }
+}
+
+@Composable
+fun SearchToolbar(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    onSearchTriggered: (String) -> Unit
+) {
+    val focusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val onSearchExplicitTriggered = {
+        keyboardController?.hide()
+        onSearchTriggered(query)
+    }
+
+    TextField(
+        colors = TextFieldDefaults.colors(
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+            disabledIndicatorColor = Color.Transparent,
+        ),
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = null,
+            )
+        },
+        trailingIcon = {
+            if (query.isNotEmpty()) {
+                IconButton(
+                    onClick = {
+                        onQueryChange("")
+                    },
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
+            }
+        },
+        onValueChange = {
+            if ("\n" !in it) onQueryChange(it)
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 16.dp)
+            .focusRequester(focusRequester)
+            .onKeyEvent {
+                if (it.key == Key.Enter) {
+                    onSearchExplicitTriggered()
+                    true
+                } else {
+                    false
+                }
+            }
+            .testTag("searchTextField"),
+        shape = RoundedCornerShape(10.dp),
+        value = query,
+        keyboardOptions = KeyboardOptions(
+            imeAction = ImeAction.Search,
+        ),
+        keyboardActions = KeyboardActions(
+            onSearch = {
+                onSearchExplicitTriggered()
+            },
+        ),
+        maxLines = 1,
+        singleLine = true,
+    )
+
 }

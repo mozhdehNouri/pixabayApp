@@ -3,6 +3,7 @@ package com.example.pixabayapp.features.picture.ui
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pixabayapp.core.AppResult
@@ -22,9 +23,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PictureViewModel @Inject constructor(
-    private val repository: PictureRepository
+    private val repository: PictureRepository,
+    private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
+    val searchQuery = savedStateHandle.getStateFlow(key = SEARCH_QUERY, initialValue = "")
     val radioOptionsList = listOf(
         "animal",
         "background",
@@ -62,6 +65,13 @@ class PictureViewModel @Inject constructor(
         manageDataRelatedActions()
     }
 
+    fun onQueryChanged(newQuery: String) {
+        savedStateHandle[SEARCH_QUERY] = newQuery
+    }
+
+    fun onQueryTriggered() {
+        updateDataAction(PhotoDataActions.GetPhotoBySearch)
+    }
 
     private fun manageUIRelatedActions() = viewModelScope.launch {
         photoUIActions.collectLatest { action ->
@@ -83,12 +93,12 @@ class PictureViewModel @Inject constructor(
                     getPhotoFromNetwork(queryString)
                 }
 
-                is PhotoDataActions.GetPhoto -> {
+                is PhotoDataActions.GetPhotoByTag -> {
                     getPhotoFromNetwork(queryString)
                 }
 
-                PhotoDataActions.Nothing -> {
-
+                PhotoDataActions.GetPhotoBySearch -> {
+                    getPhotoFromNetwork(searchQuery.value)
                 }
             }
         }
@@ -127,3 +137,5 @@ class PictureViewModel @Inject constructor(
         emitToSharedFlow(photoDataActions, actions)
     }
 }
+
+private const val SEARCH_QUERY = "searchQuery"
