@@ -36,4 +36,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "PixabayApp"
 include(":app")
- 
+include(":navigation_lint")
